@@ -27,6 +27,9 @@ canvas_select.addEventListener("mousedown",function(e){
         ctx.beginPath();
         ctx.moveTo(mouseX,mouseY);
         canvas_select.addEventListener("mousemove",pen_draw);
+    }else if(mode =='sprinkle'){
+        sprinkle_event();
+        canvas_select.addEventListener("mousemove",sprinkle_refresh);
     }
 });
 canvas_select.addEventListener("mouseup",function(e){
@@ -46,12 +49,13 @@ canvas_select.addEventListener("mouseup",function(e){
             if(fill_or_not){
                 ctx.fill();   
             }else{
-                ctx.stroke();
+                ctx.stroke(e);
             }
         }
     }
     canvas_select.removeEventListener("mousemove",erase);
     canvas_select.removeEventListener("mousemove",pen_draw);
+    canvas_select.removeEventListener("mousemove",sprinkle_refresh);
     isDown=false;
     console.log("mouse up");
 });
@@ -68,7 +72,22 @@ function pen_draw(e){
     ctx.lineTo(offsetX,offsetY);
     ctx.stroke();
 }
-
+function sprinkle_event(){
+    if(isDown){
+        const r = 20;
+        for(var i=0;i<10;i++){
+            var dr = Math.random()*r;
+            var theta = Math.random()*2*Math.PI;
+            var dx = dr*Math.cos(theta);
+            var dy = dr*Math.sin(theta);
+            ctx.fillRect(mouseX+dx,mouseY+dy,1,1);
+        }
+        setTimeout('sprinkle_event()',50);
+    }
+}
+function sprinkle_refresh(e){
+    [mouseX,mouseY]=[e.pageX-canvas_x,e.pageY-canvas_y];
+}
 $('#donothing').click(()=>{
     mode = 'donothing';
     console.log('donothing mode');
@@ -91,6 +110,9 @@ $('#hide').click(()=>{
 $('#eraser').click(()=>{
     mode = 'eraser';
     console.log('eraser mode');
+});
+$('#sprinkle').click(()=>{
+   mode = 'sprinkle'; 
 });
 $('#fill').click(()=>{
     fill_or_not=!fill_or_not;
